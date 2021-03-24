@@ -1,7 +1,7 @@
 class PrototypesController < ApplicationController
 
-  before_action :set_prototype, only: [:edit, :show]
-  before_action :set_validates, only: [:edit,:new,:destroy]
+  before_action :set_prototype, only: [:edit,:show,:update]
+  before_action :set_validates, only: [:new,:create,:edit,:update,:destroy]
 
   def index
     @prototype = Prototype.all
@@ -26,16 +26,14 @@ class PrototypesController < ApplicationController
   end
 
   def edit
-    unless user_signed_in? && current_user.id == @prototype.user.id
+    unless current_user.id == @prototype.user.id
       redirect_to root_path
     end
   end
 
   def update
-    prototype = Prototype.find(params[:id])
-    prototype.update(prototype_params)
-    if prototype.save
-      redirect_to action: :show    #これでもいける？
+    if @prototype.update(prototype_params)
+      redirect_to prototype_path
     else
       render :edit
     end
@@ -47,7 +45,7 @@ class PrototypesController < ApplicationController
     redirect_to action: :index
   end
 
-  
+
   private
   def prototype_params
     params.require(:prototype).permit(:title, :catch_copy, :concept, :image).merge(user_id: current_user.id)
